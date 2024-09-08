@@ -9,7 +9,7 @@
         <link rel="stylesheet" type="text/css" media="screen" th:href="@{/styles/bootstrap.min.css}" />
 	</head>
 	<body>
-        <div class="container">
+        <div class="container mx-autostyle" style="width: 600px;">
             <h2>Please sign in here:</h2>
             <hr/>            
             <form action="#" th:action="@{/authenticateUser}" method="POST">
@@ -18,6 +18,11 @@
                 </div>
                 <div class="form-group">
                     <label for="password">Password: </label><input  class="form-control" type="password" name="password"/>
+                </div>
+                <div class="mt-2 clearfix" th:if="${param.error}">
+                    <div class="alert alert-danger" role="alert">
+                        <i>Invalid login credentials</i>
+                    </div>
                 </div>
                 <hr/>
                 <div class="form-group">
