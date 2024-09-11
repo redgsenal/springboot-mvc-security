@@ -4,7 +4,7 @@
 <head>
 	<meta charset="utf-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-	<title>Springboot MVC Security: Home</title>
+	<title>Springboot MVC Security: Access Denied</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<link rel="stylesheet" type="text/css" media="screen" th:href="@{/styles/bootstrap.min.css}" />
 	<link rel="stylesheet" type="text/css" media="screen" th:href="@{/styles/main.css}" />
@@ -13,12 +13,12 @@
 <body>
 	<div class="container">
 		<div class="row">
-			<h2>Welcome to the Home Page</h2>
+			<h2>Content Not Available</h2>
 			<hr />
 		</div>
 		<div class="row">
 			<div class="w-100">
-				<p>This is the home page. More changes to come.</p>
+				<p>Sorry but the content is unavailable at the moment.</p>
 				<p>User: <span sec:authentication="principal.username"></span></p>
 				<p>Role(s): <span sec:authentication="principal.authorities"></span></p>
 				<p sec:authorize="hasRole('EMPLOYEE')"><a th:href="@{/}">Home Page</a></p>

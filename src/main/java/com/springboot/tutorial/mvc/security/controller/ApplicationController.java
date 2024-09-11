@@ -11,4 +11,19 @@ public class ApplicationController {
         return "home";
     }
 
+    @GetMapping("/leaders")
+    public String showLeaderPage() {
+        return "leaders";
+    }
+
+    @GetMapping("/systems")
+    public String showSystemPage() {
+        return "systems";
+    }
+
+    @GetMapping("/access-denied")
+    public String showAccessDenied() {
+        return "access-denied";
+    }
+
 }
