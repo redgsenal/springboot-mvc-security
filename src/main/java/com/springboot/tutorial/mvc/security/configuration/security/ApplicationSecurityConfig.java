@@ -2,11 +2,14 @@ package com.springboot.tutorial.mvc.security.configuration.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
@@ -19,14 +22,28 @@ import javax.sql.DataSource;
 @EnableWebSecurity
 public class ApplicationSecurityConfig {
 
-    // authentication use by JDBC using custom tables members and roles
     @Bean
-    public UserDetailsManager userDetailsManager(DataSource dataSource) {
-        JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
-        jdbcUserDetailsManager.setUsersByUsernameQuery("select user_id, pw, active from members where user_id=?");
-        jdbcUserDetailsManager.setAuthoritiesByUsernameQuery("select user_id, role from roles where user_id=?");
-        return jdbcUserDetailsManager;
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
+
+    //authenticationProvider bean definition
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider(UserDetailsService userService) {
+        DaoAuthenticationProvider auth = new DaoAuthenticationProvider();
+        auth.setUserDetailsService(userService); //set the custom user details service
+        auth.setPasswordEncoder(passwordEncoder()); //set the password encoder - bcrypt
+        return auth;
+    }
+
+    // authentication use by JDBC using custom tables members and roles
+    // @Bean
+    // public UserDetailsManager userDetailsManager(DataSource dataSource) {
+    //    JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
+    //    jdbcUserDetailsManager.setUsersByUsernameQuery("select user_id, pw, active from members where user_id=?");
+    //    jdbcUserDetailsManager.setAuthoritiesByUsernameQuery("select user_id, role from roles where user_id=?");
+    //    return jdbcUserDetailsManager;
+    //}
 
     // authentication use by JDBC using default tables users and authorities
     // @Bean
