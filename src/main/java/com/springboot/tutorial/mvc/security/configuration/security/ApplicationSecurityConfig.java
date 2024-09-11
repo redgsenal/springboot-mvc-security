@@ -8,13 +8,32 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
+import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.HeaderWriterLogoutHandler;
 import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter;
 
+import javax.sql.DataSource;
+
 @Configuration
 @EnableWebSecurity
 public class ApplicationSecurityConfig {
+
+    // authentication use by JDBC
+    @Bean
+    public UserDetailsManager userDetailsManager(DataSource dataSource){
+        return new JdbcUserDetailsManager(dataSource);
+    }
+
+    // use for hard-coded authentication
+//    @Bean
+//    public InMemoryUserDetailsManager userDetailsManager() {
+//        UserDetails user1 = buildUserDetails("greg", "{noop}test123", "EMPLOYEE");
+//        UserDetails user2 = buildUserDetails("jason", "{noop}test123", "EMPLOYEE", "MANAGER");
+//        UserDetails user3  = buildUserDetails("kate", "{noop}test123", "EMPLOYEE", "MANAGER", "ADMIN");
+//        return new InMemoryUserDetailsManager(user1, user2, user3);
+//    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
@@ -48,20 +67,11 @@ public class ApplicationSecurityConfig {
         return httpSecurity.build();
     }
 
-    @Bean
-    public InMemoryUserDetailsManager userDetailsManager() {
-        UserDetails john = buildUserDetails("john", "{noop}test123", "EMPLOYEE");
-        UserDetails mary = buildUserDetails("mary", "{noop}test123", "EMPLOYEE", "MANAGER");
-        UserDetails susan = buildUserDetails("susan", "{noop}test123", "EMPLOYEE", "MANAGER", "ADMIN");
-        return new InMemoryUserDetailsManager(john, mary, susan);
-    }
-
     private UserDetails buildUserDetails(String username, String password, String... roles) {
-        UserDetails userDetails = User.builder()
+        return User.builder()
                 .username(username)
                 .password(password)
                 .roles(roles)
                 .build();
-        return userDetails;
     }
 }
