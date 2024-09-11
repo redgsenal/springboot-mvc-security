@@ -7,7 +7,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
@@ -20,35 +19,44 @@ import javax.sql.DataSource;
 @EnableWebSecurity
 public class ApplicationSecurityConfig {
 
-    // authentication use by JDBC
+    // authentication use by JDBC using custom tables members and roles
     @Bean
-    public UserDetailsManager userDetailsManager(DataSource dataSource){
-        return new JdbcUserDetailsManager(dataSource);
+    public UserDetailsManager userDetailsManager(DataSource dataSource) {
+        JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
+        jdbcUserDetailsManager.setUsersByUsernameQuery("select user_id, pw, active from members where user_id=?");
+        jdbcUserDetailsManager.setAuthoritiesByUsernameQuery("select user_id, role from roles where user_id=?");
+        return jdbcUserDetailsManager;
     }
 
+    // authentication use by JDBC using default tables users and authorities
+    // @Bean
+    // public UserDetailsManager userDetailsManager(DataSource dataSource){
+    //     return new JdbcUserDetailsManager(dataSource);
+    // }
+
     // use for hard-coded authentication
-//    @Bean
-//    public InMemoryUserDetailsManager userDetailsManager() {
-//        UserDetails user1 = buildUserDetails("greg", "{noop}test123", "EMPLOYEE");
-//        UserDetails user2 = buildUserDetails("jason", "{noop}test123", "EMPLOYEE", "MANAGER");
-//        UserDetails user3  = buildUserDetails("kate", "{noop}test123", "EMPLOYEE", "MANAGER", "ADMIN");
-//        return new InMemoryUserDetailsManager(user1, user2, user3);
-//    }
+    // @Bean
+    //  public InMemoryUserDetailsManager userDetailsManager() {
+    //      UserDetails user1 = buildUserDetails("greg", "{noop}test123", "EMPLOYEE");
+    //      UserDetails user2 = buildUserDetails("jason", "{noop}test123", "EMPLOYEE", "MANAGER");
+    //      UserDetails user3  = buildUserDetails("kate", "{noop}test123", "EMPLOYEE", "MANAGER", "ADMIN");
+    //      return new InMemoryUserDetailsManager(user1, user2, user3);
+    //  }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeHttpRequests(
-                authorize -> authorize
-                        .requestMatchers("/styles/**", "/scripts/**").permitAll()
-                        .requestMatchers("/showLoginPage").permitAll()
-                        .requestMatchers("/").hasRole("EMPLOYEE")
-                        .requestMatchers("/leaders/**").hasRole("MANAGER")
-                        .requestMatchers("/systems/**").hasRole("ADMIN")
-                        .anyRequest().authenticated()
-        )
+                        authorize -> authorize
+                                .requestMatchers("/styles/**", "/scripts/**").permitAll()
+                                .requestMatchers("/showLoginPage").permitAll()
+                                .requestMatchers("/").hasRole("EMPLOYEE")
+                                .requestMatchers("/leaders/**").hasRole("MANAGER")
+                                .requestMatchers("/systems/**").hasRole("ADMIN")
+                                .anyRequest().authenticated()
+                )
                 .formLogin(
                         form
-                        -> form
+                                -> form
                                 .loginPage("/showLoginPage")
                                 .loginProcessingUrl("/authenticateUser")
                                 .permitAll()
